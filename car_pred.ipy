@@ -1,0 +1,250 @@
+pip install boto3
+
+import boto3
+
+access_key="enter_access_key"
+password="enter_secret_access_key"
+
+s3=boto3.client("s3",aws_access_key_id=access_key,aws_secret_access_key=password)
+
+bucket=s3.list_buckets()
+bucket
+
+bucket_file=s3.list_objects_v2(Bucket=bucket["Buckets"][0]["Name"])
+bucket_file
+
+bucket["Buckets"][0]["Name"]
+
+bucket_file["Contents"][2]["Key"]
+
+import boto3
+import pandas as pd
+from io import StringIO
+
+# Initialize S3 client
+s3 = boto3.client('s3',aws_access_key_id=access_key,aws_secret_access_key=password)
+
+# Define bucket and file details
+bucket_name = bucket["Buckets"][0]["Name"]
+file_key = bucket_file["Contents"][2]["Key"]  # Path inside the bucket
+
+# Get the CSV file object from S3
+response = s3.get_object(Bucket=bucket_name, Key=file_key)
+
+# Read CSV data into a Pandas DataFrame
+df = pd.read_csv(StringIO(response['Body'].read().decode('utf-8')))
+
+
+df
+
+df[df["power"]==0]
+
+df["fuel_type"].unique()
+
+df[df["fuel_type"]=='  Electric  ']
+
+df.loc[df["fuel_type"] == '  Electric  ', "cc"] = 0.1
+
+df[df["power"]==0]
+
+df.drop(df.loc[df["power"]==0].index,inplace=True)
+
+df.info()
+
+df["fuel_type"]=df["fuel_type"].str.slice(2,-2)
+
+df["fuel_type"].unique()
+
+df.drop("Unnamed: 0",axis=1,inplace=True)
+
+df.to_csv("car_price_ai.csv")
+
+import pickle
+from sklearn.preprocessing import OrdinalEncoder
+encoder1=OrdinalEncoder().fit(df[["brand"]])
+df["brand"]=encoder1.fit_transform(df[["brand"]])
+with open('encoder_brand.pkl', 'wb') as f:
+    pickle.dump(encoder1, f)
+
+encoder2=OrdinalEncoder().fit(df[["model"]])
+df["model"]=encoder2.fit_transform(df[["model"]])
+with open('encoder_model.pkl', 'wb') as f:
+    pickle.dump(encoder2, f)
+
+encoder3=OrdinalEncoder().fit(df[["fuel_type"]])
+df["fuel_type"]=encoder3.fit_transform(df[["fuel_type"]])
+with open('encoder_fuel_type.pkl', 'wb') as f:
+    pickle.dump(encoder3, f)
+
+encoder4=OrdinalEncoder().fit(df[["transmission"]])
+df["transmission"]=encoder4.fit_transform(df[["transmission"]])
+with open('encoder_transmission.pkl', 'wb') as f:
+    pickle.dump(encoder4, f)
+
+encoder5=OrdinalEncoder().fit(df[["no_of_seats"]])
+df["no_of_seats"]=encoder5.fit_transform(df[["no_of_seats"]])
+with open('encoder_no_of_seats.pkl', 'wb') as f:
+    pickle.dump(encoder5, f)
+
+encoder6=OrdinalEncoder().fit(df[["ownership"]])
+df["ownership"]=encoder6.fit_transform(df[["ownership"]])
+with open('encoder_ownership.pkl', 'wb') as f:
+    pickle.dump(encoder6, f)
+
+encoder7=OrdinalEncoder().fit(df[["location"]])
+df["location"]=encoder7.fit_transform(df[["location"]])
+with open('encoder_location.pkl', 'wb') as f:
+    pickle.dump(encoder7, f)
+    
+encoder7=OrdinalEncoder().fit(df[["insurance_type"]])
+df["insurance_type"]=encoder7.fit_transform(df[["insurance_type"]])
+with open('encoder_insurance_type.pkl', 'wb') as f:
+    pickle.dump(encoder7, f)
+
+
+
+df
+
+#hypotheses
+
+continues=['make_year','price', 'km_driven', 'registration_year', 'power', 'cc', 'mileage']
+categories=['brand','model','fuel_type','transmission', 'insurance_type', 'no_of_seats', 'ownership',"location"]
+
+from scipy import stats
+
+def two_sample(d1,d2):
+  t=0
+  f=0
+  for i in  range(31):
+    sample1=d1.sample(frac=0.03)
+    sample2=d2.sample(frac=0.03)
+    t_test,p_value=stats.ttest_ind(sample1,sample2)
+    if p_value < 0.055:
+      f=f+1
+    else:
+      t=t+1
+  if t>f:
+    return True
+  else:
+    return False
+
+#defining function for categories vs categories
+def chisqare_cat_vs_cat(d1,d2):
+  return True if stats.chi2_contingency(pd.crosstab(d1,d2))[1] < 0.055 else False
+
+def annova_test(d1,d2):
+  group=df[d2].unique()
+  data={}
+  for i in group:
+    data[i]=df[d1][df[d2]==i]
+  f_value,p_value=stats.f_oneway(*[i for i in data.values()])
+  if p_value < 0.055:
+    return False
+  else:
+    return True
+
+final={}
+for i in df.columns:
+  final[i]={}
+  for j in df.columns:
+    if (i in continues) and (j in continues):
+      result=two_sample(df[i],df[j])
+    elif  (i in continues) and (j in categories):
+      result=annova_test(i,j)
+    elif (i in categories) and (j in continues):
+      result=annova_test(j,i)
+    elif (i in categories) and (j in categories):
+      result=chisqare_cat_vs_cat(df[i],df[j])
+    if result:
+      final[i][j]=1
+    else:
+      final[i][j]=0
+
+
+df1=pd.DataFrame(final)
+df1
+
+for i in continues:
+  print(i,df[i].skew(),df[i].kurtosis())
+
+import numpy as np
+data=["price","km_driven","power","cc"]
+for i in data:
+    a = np.arcsinh(df[i])  # sinh-inverse transformation
+    print(i,a.skew(),a.kurtosis())
+
+for i in data:
+  a=np.cbrt(df[i])
+  print(i,a.skew(),a.kurtosis())
+
+data=["price","km_driven","power","cc"]
+from scipy import stats
+method=[0,0.5,-0.5,1,-1,2,-2]
+for i in method:
+  for j in data:
+    print(i,j)
+    print("skewness",pd.DataFrame(stats.boxcox(df[j],lmbda=i)).skew().values,"kurtosis",pd.DataFrame(stats.boxcox(df[j],lmbda=i)).kurtosis().values)
+
+data=["power","cc"]
+for i in data:
+  a=np.log(df[i])
+  print(i,a.skew(),a.kurtosis())
+
+#we got normalized skewness and kurtosis in cbrt
+df["km_driven"]= np.cbrt(df["km_driven"])
+df["price"]=stats.boxcox(df["price"],lmbda=0)
+#df["cc"]=stats.boxcox(df["cc"],lmbda=-0.5)
+df["power"]=stats.boxcox(df["power"],lmbda=-0.5)
+
+#df["power"]=stats.boxcox(df["power"],lmbda=0)
+
+for i in continues:
+  print(i,df[i].skew(),df[i].kurtosis())
+
+y=df["price"]
+x=df.drop("price",axis=1)
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2)
+
+from sklearn.metrics import mean_squared_error,mean_absolute_error,r2_score
+
+from sklearn.ensemble import RandomForestRegressor
+model1 = RandomForestRegressor(n_estimators=100,criterion='squared_error',max_depth=5, random_state=0)
+result=model1.fit(x_train, y_train)
+y_pred = model1.predict(x_test)
+print(mean_squared_error(y_test,y_pred),mean_absolute_error(y_test,y_pred),r2_score(y_test,y_pred))
+
+# print(type(model10))
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.tree import DecisionTreeRegressor
+base_model000 = DecisionTreeRegressor(max_depth=4)
+model_adab = AdaBoostRegressor(estimator=base_model000, n_estimators=50, learning_rate=0.1, random_state=42).fit(x_train, y_train)
+y_pred = model_adab.predict(x_test)
+print(mean_squared_error(y_test,y_pred))
+print(mean_absolute_error(y_test,y_pred))
+print(r2_score(y_test,y_pred))
+
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.ensemble import RandomForestRegressor
+model_random=RandomForestRegressor().fit(x_train,y_train)
+y_pred=model_random.predict(x_test)
+
+from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score
+result=print(("MSE",mean_squared_error(y_test,y_pred)),("MAE",mean_absolute_error(y_test,y_pred)),("R2 Score",r2_score(y_test,y_pred)))
+
+with open("carmodel1.pkl","wb") as f:
+  pickle.dump(model_random,f)
+
+from xgboost import XGBRegressor
+model_xg=XGBRegressor().fit(x_train,y_train)
+y_pred=model_xg.predict(x_test)
+print(mean_squared_error(y_test,y_pred))
+print(mean_absolute_error(y_test,y_pred))
+print(r2_score(y_test,y_pred))
+
+with open("carmodel2.pkl","wb") as f:
+  pickle.dump(model_adab,f)
+
+with open("carmodel3.pkl","wb") as f:
+  pickle.dump(model_xg,f)
