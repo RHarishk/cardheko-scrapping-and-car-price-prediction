@@ -6,15 +6,6 @@ import base64
 from scipy import stats
 from streamlit_extras.colored_header import colored_header
 
-import mlflow
-import mlflow.sklearn
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-import xgboost as xgb
-from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-
 # Load Model and Encoders
 def load_model(model_path):
     with open(model_path, 'rb') as file:
@@ -57,24 +48,24 @@ def set_background_image_local(image_path):
     )
 
 # Set Background Image
-set_background_image_local("E:\Project1\Dark-bg.jpg")  # Update with correct path
+set_background_image_local("Dark-bg.jpg")  # Update with correct path
 
 # Load Model
-car_model = load_model("E:/Project1/carmodel1.pkl")
+car_model = load_model("carmodel1.pkl")
 
 # Load Dataset
-df = pd.read_csv("E:/Project1/car_price_ai.csv")
+df = pd.read_csv("car_price_ai.csv")
 
 # Load Encoders
 encoders = {
-    "brand": load_model("E:/Project1/encoder_brand.pkl"),
-    "fuel_type": load_model("E:/Project1/encoder_fuel_type.pkl"),
-    "insurance_type": load_model("E:/Project1/encoder_insurance_type.pkl"),
-    "location": load_model("E:/Project1/encoder_location.pkl"),
-    "no_of_seats": load_model("E:/Project1/encoder_no_of_seats.pkl"),
-    "ownership": load_model("E:/Project1/encoder_ownership.pkl"),
-    "transmission": load_model("E:/Project1/encoder_transmission.pkl"),
-    "model": load_model("E:/Project1/encoder_model.pkl")
+    "brand": load_model("encoder_brand.pkl"),
+    "fuel_type": load_model("encoder_fuel_type.pkl"),
+    "insurance_type": load_model("encoder_insurance_type.pkl"),
+    "location": load_model("encoder_location.pkl"),
+    "no_of_seats": load_model("encoder_no_of_seats.pkl"),
+    "ownership": load_model("encoder_ownership.pkl"),
+    "transmission": load_model("encoder_transmission.pkl"),
+    "model": load_model("encoder_model.pkl")
 }
 
 # Title & Tabs
