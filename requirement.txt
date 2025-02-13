@@ -3,5 +3,5 @@ pandas
 numpy
 scipy
 streamlit_extras
-scikit
+scikit-learn
 xgboost
