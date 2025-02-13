@@ -51,7 +51,7 @@ def set_background_image_local(image_path):
 set_background_image_local("Dark-bg.jpg")  # Update with correct path
 
 # Load Model
-car_model = load_model("carmodel1.pkl")
+car_model = load_model("carmodel2.pkl")
 
 # Load Dataset
 df = pd.read_csv("car_price_ai.csv")
