@@ -1,7 +1,0 @@
-streamlit
-pandas
-numpy
-scipy
-streamlit_extras
-scikit-learn
-xgboost
