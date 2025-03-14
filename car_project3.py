@@ -62,24 +62,24 @@ def set_background_image_local(image_path):
     )
 
 # Set Background Image
-set_background_image_local("Dark-bg.jpg")
+set_background_image_local("E:\\Project1\\Dark-bg.jpg")
 
 # Load Model
-car_model = load_model("carmodel2 (1).pkl")
+car_model = load_model("E:\\Project1\\carmodel2 (1).pkl")
 
 # Load Dataset
-df = pd.read_csv("car_price_ai.csv")
+df = pd.read_csv("E:/Project1/car_price_ai.csv")
 
 # Load Encoders
 encoders = {
-    "brand": load_model("encoder_brand.pkl"),
-    "fuel_type": load_model("encoder_fuel_type.pkl"),
-    "insurance_type": load_model("encoder_insurance_type.pkl"),
-    "location": load_model("encoder_location.pkl"),
-    "no_of_seats": load_model("encoder_no_of_seats.pkl"),
-    "ownership": load_model("encoder_ownership.pkl"),
-    "transmission": load_model("encoder_transmission.pkl"),
-    "model": load_model("encoder_model.pkl")
+    "brand": load_model("E:/Project1/encoder_brand.pkl"),
+    "fuel_type": load_model("E:/Project1/encoder_fuel_type.pkl"),
+    "insurance_type": load_model("E:/Project1/encoder_insurance_type.pkl"),
+    "location": load_model("E:/Project1/encoder_location.pkl"),
+    "no_of_seats": load_model("E:/Project1/encoder_no_of_seats.pkl"),
+    "ownership": load_model("E:/Project1/encoder_ownership.pkl"),
+    "transmission": load_model("E:/Project1/encoder_transmission.pkl"),
+    "model": load_model("E:/Project1/encoder_model.pkl")
 }
 
 # Title & Tabs
@@ -123,10 +123,39 @@ with col5:
 km_driven = np.cbrt(km_driven_data)
 power_transformed = stats.boxcox([power_data], lmbda=-0.5)[0]
 
+input_data = pd.DataFrame({
+    'location': [location],
+    'make_year': [int(make_year)],
+    'brand': [brand],
+    'model': [model],
+    'km_driven': [float(km_driven)],
+    'fuel_type': [fuel_type],
+    'transmission': [transmission],
+    'registration_year': [int(registration_year)],
+    "insurance_type": [insurance_type],
+    'no_of_seats': [int(no_of_seats)],
+    'ownership': [ownership],
+    'power': [float(power_transformed)],  # Transformed power
+    'cc': [float(cc)],
+    'mileage': [float(mileage)]
+})
+
+# Predict Button
+st.markdown("<br>", unsafe_allow_html=True)  # Add spacing
+if st.button("🚀 Predict Price"):
+    prediction = car_model.predict(input_data)
+    predicted_price = np.exp(prediction[0])  # Inverse log transformation
+    st.markdown(
+        f"<div class='prediction-box'>💰 <b>Estimated Price:</b> Rs {int(predicted_price):,}</div>",
+        unsafe_allow_html=True
+    )
+
+
 # Car Model Detail Box
 st.markdown("<h2 style='color: #FFA500;'>💬 Car Details Chatbot</h2>", unsafe_allow_html=True)
 
 user_command = st.text_input("Enter command", placeholder="E.g., Give me detail info about Tata")
+
 
 if st.button("🔍 Search Model"):
     if user_command.lower():
