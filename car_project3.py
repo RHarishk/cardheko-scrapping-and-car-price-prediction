@@ -72,14 +72,14 @@ df = pd.read_csv("car_price_ai.csv")
 
 # Load Encoders
 encoders = {
-    "brand": load_model("E:/Project1/encoder_brand.pkl"),
-    "fuel_type": load_model("E:/Project1/encoder_fuel_type.pkl"),
-    "insurance_type": load_model("E:/Project1/encoder_insurance_type.pkl"),
-    "location": load_model("E:/Project1/encoder_location.pkl"),
-    "no_of_seats": load_model("E:/Project1/encoder_no_of_seats.pkl"),
-    "ownership": load_model("E:/Project1/encoder_ownership.pkl"),
-    "transmission": load_model("E:/Project1/encoder_transmission.pkl"),
-    "model": load_model("E:/Project1/encoder_model.pkl")
+    "brand": load_model("encoder_brand.pkl"),
+    "fuel_type": load_model("encoder_fuel_type.pkl"),
+    "insurance_type": load_model("encoder_insurance_type.pkl"),
+    "location": load_model("encoder_location.pkl"),
+    "no_of_seats": load_model("encoder_no_of_seats.pkl"),
+    "ownership": load_model("encoder_ownership.pkl"),
+    "transmission": load_model("encoder_transmission.pkl"),
+    "model": load_model("encoder_model.pkl")
 }
 
 # Title & Tabs
