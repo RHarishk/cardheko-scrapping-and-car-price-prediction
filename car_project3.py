@@ -62,7 +62,7 @@ def set_background_image_local(image_path):
     )
 
 # Set Background Image
-set_background_image_local("E:\\Project1\\Dark-bg.jpg")
+set_background_image_local("Dark-bg.jpg")
 
 # Load Model
 car_model = load_model("E:\\Project1\\carmodel2 (1).pkl")
