@@ -2,6 +2,6 @@ streamlit
 pandas
 numpy
 scipy
-streamlit_extras
+streamlit-extras
 scikit-learn
 xgboost
